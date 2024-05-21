@@ -1,0 +1,31 @@
+* {
+    background-color: #00001f;
+    color: #DDDDDD;
+}
+
+.body {
+    /* background-color: red; */
+    display: flex;
+    justify-content: center;
+
+}
+
+.table-language, .table-level, .table-sspfp {
+    border-style: solid;
+    border-width: 1px;
+    font-size: 1.1em;
+    text-align: center;
+}
+
+.table-language {
+    /* background-color: red; */
+}
+
+.table-level {
+    min-width: 80px;
+    /* background-color: green; */
+}
+
+.table-sspfp {
+    /* background-color: blue; */
+}
