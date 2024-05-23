@@ -1,7 +1,6 @@
 const {Builder, By} = require("selenium-webdriver")
-const {Client} = require('pg')
-
-// const {client} = require("../db/connection")
+// const {Client} = require('pg')
+const {Pool} = require("pg")
 
 const DB_NAME = process.env.DB_NAME;
 const DB_USER = process.env.DB_USER || 'postgres';
@@ -9,7 +8,7 @@ const DB_HOST = process.env.DB_HOST || 'localhost';
 const DB_PASSWORD = process.env.DB_PASSWORD;
 const DB_PORT = process.env.DB_PORT || 5432;
 
-const client = new Client({
+const pool = new Pool({
     host: DB_HOST,
     user: DB_USER ,
     port: DB_PORT,
@@ -19,7 +18,7 @@ const client = new Client({
 
 
 const insertIntoDB = async (language, level, sspfp) => {
-    await client.query(
+    await pool.query(
         `INSERT INTO langandlevels(language, level, sspfp)
         VALUES('${language}', ${level}, ${sspfp});`
     )
@@ -27,8 +26,8 @@ const insertIntoDB = async (language, level, sspfp) => {
 
 
 const getAllLanglvl = async (req, res) => {
-    await client.connect();
-    const response = await client.query(
+    // await pool.connect();
+    const response = await pool.query(
         `SELECT 1
         FROM   information_schema.tables 
         WHERE  table_schema = 'public'
@@ -42,7 +41,7 @@ const getAllLanglvl = async (req, res) => {
             let secondDivKey = Object.keys(langlevels)[1] // get the 2nd div
             const allLangLevels = await langlevels[secondDivKey].getText()
             const splitLangLevels = allLangLevels.split("\n").slice(1)
-            await client.query(`CREATE TABLE langandlevels (
+            await pool.query(`CREATE TABLE langandlevels (
                 language VARCHAR(255),
                 level NUMERIC(4, 2),
                 sspfp INT
@@ -63,10 +62,13 @@ const getAllLanglvl = async (req, res) => {
         }
     }
 
-    await client.query("Select * from langandlevels")
-        .then(result => res.status(200).send(result.rows))
-        .catch(error => console.log(error))
-    await client.end()
+    await pool.query("Select * from langandlevels", (err, result) => {
+        if(err) {
+            console.log(err);
+        }
+        res.status(200).json(result.rows)
+    })
+    // await client.end()
 }
         
 module.exports = {

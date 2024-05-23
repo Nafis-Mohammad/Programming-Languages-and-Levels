@@ -5,35 +5,26 @@ import { useLoaderData } from 'react-router-dom'
 import Row from '../components/Row';
 
 export async function loader() {
-    // const data = await axios.get("http://localhost:4000/api/langlevel")
-    //     .then((response) => {
-    //         return response.data // ???
-    //     })
-    //     .catch((error) => {
-    //         console.log(error.response.data.error); // ???
-    //     })
-    // return data
-    return null
+    // get data from the backend api and return it
+    const data = await axios.get("http://localhost:4000/api/langlevel")
+        .then((response) => {
+            return response.data
+        })
+        .catch((error) => {
+            console.log(error.response.data.error);
+        })
+    return data
 }
 
 const MainPage = () => {
-    // const data = useLoaderData()
-    const [data, setData] = React.useState([])
-    React.useEffect(() => {
-        axios.get("http://localhost:4000/api/langlevel")
-        .then((response) => {
-            setData(response.data) // ???
-        })
-        .catch((error) => {
-            console.log(error.response.data.error); // ???
-        })
-    }, [])
-    // console.log(data);
+    // get data from the loader function
+    const data = useLoaderData()
     const fullData = data.map(eachData => {
-        return <Row {...eachData} />
+        return <Row key={eachData.language} {...eachData} />
     })
     return (
         <div className='body'>
+            <h1>Programming Languages and Levels</h1>
             <table className='table'>
                 <tbody>
                     <tr>
