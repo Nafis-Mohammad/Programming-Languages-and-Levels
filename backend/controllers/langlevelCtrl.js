@@ -8,6 +8,7 @@ const DB_HOST = process.env.DB_HOST || 'localhost';
 const DB_PASSWORD = process.env.DB_PASSWORD;
 const DB_PORT = process.env.DB_PORT || 5432;
 
+// connect to Database using configurations provided in .env file
 const pool = new Pool({
     host: DB_HOST,
     user: DB_USER ,
@@ -27,13 +28,15 @@ const insertIntoDB = async (language, level, sspfp) => {
 
 const getAllLanglvl = async (req, res) => {
     // await pool.connect();
+    // check if table exists
     const response = await pool.query(
         `SELECT 1
         FROM   information_schema.tables 
         WHERE  table_schema = 'public'
         AND    table_name = 'langandlevels'`
     )
-    if(response.rowCount === 0) { // if data doesnt already exist in DB
+    if(response.rowCount === 0) { // if table doesnt exist
+        // fetch the required table from the website
         let driver = await new Builder().forBrowser('chrome').build()
         try {
             await driver.get('https://www.cs.bsu.edu/homepages/dmz/cs697/langtbl.htm')
@@ -41,12 +44,16 @@ const getAllLanglvl = async (req, res) => {
             let secondDivKey = Object.keys(langlevels)[1] // get the 2nd div
             const allLangLevels = await langlevels[secondDivKey].getText()
             const splitLangLevels = allLangLevels.split("\n").slice(1)
+
+            // create the table in the DB
             await pool.query(`CREATE TABLE langandlevels (
                 language VARCHAR(255),
                 level NUMERIC(4, 2),
                 sspfp INT
               );`
             )
+
+            // add each row to the newly created table in the DB
             splitLangLevels.map((eachLangLevel) => {
                 const newSplitEachLangLevel = eachLangLevel.split(" ")
                 const level = newSplitEachLangLevel[newSplitEachLangLevel.length - 2]
@@ -62,6 +69,7 @@ const getAllLanglvl = async (req, res) => {
         }
     }
 
+    // select the data from the table in the DB and return it
     await pool.query("Select * from langandlevels", (err, result) => {
         if(err) {
             console.log(err);

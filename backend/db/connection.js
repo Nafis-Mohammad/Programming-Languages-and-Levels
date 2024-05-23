@@ -17,13 +17,15 @@ const client = new Client({
 const setupDatabase = async function() {
     await client.connect();
     
+    // check if the database exists
     const res = await client.query(`SELECT datname FROM pg_catalog.pg_database WHERE datname = '${DB_NAME}'`);
     
-    if (res.rowCount === 0) {
+
+    if (res.rowCount === 0) {   // if the database doesnt exist, create a new one
         console.log(`${DB_NAME} database not found, creating it.`);
         await client.query(`CREATE DATABASE "${DB_NAME}";`);
         console.log(`created database ${DB_NAME}`);
-    } else {
+    } else {    // otherwise do nothing
         console.log(`${DB_NAME} database exists.`);
     }
     

@@ -14,13 +14,14 @@ app.use(cors())
 
 const langlevelRouter = require("./routes/langlevelRoute.js")
 
-app.use("/api/langlevel", langlevelRouter)
+app.use("/api/langlevel", langlevelRouter)  // the only relevant router
 
 
 const port = process.env.PORT || 4000
 
 const start = async () => {
     try {
+        // create database if it doesnt already exist
         await setupDatabase()
         app.listen(port, () => {
             console.log(`Server listening on port ${port}...`)
